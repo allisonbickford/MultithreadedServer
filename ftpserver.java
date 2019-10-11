@@ -45,7 +45,7 @@ public class ftpserver {
 				File[] fileList = folder.listFiles();
 				int byteSize = 0;
 				for(int i = 0; i < fileList.length; i++){
-					byteSize += (fileList[i].length +1);
+					byteSize += (fileList[i].length() +1);
 				}
 				data = new byte[byteSize];
 				
@@ -58,7 +58,7 @@ public class ftpserver {
 						offset = 0;
 					}
 					else{
-						offset = fileList[i-1].length;
+						offset = (int)fileList[i-1].length();
 					}
 					bis.read(data,offset,data.length);
 				}
