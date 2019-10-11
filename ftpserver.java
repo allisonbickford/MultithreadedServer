@@ -15,8 +15,8 @@ class FTPServer {
 
     ServerSocket welcomeSocket = new ServerSocket(12000);
     String frstln;
-    int port = 6789;
-    System.out.println("hi");
+    int port = 12000;
+    System.out.println("Running on port" + port);
     
     while(true) {
         Socket connectionSocket = welcomeSocket.accept();

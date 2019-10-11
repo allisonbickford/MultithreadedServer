@@ -7,6 +7,8 @@ import javax.swing.*;
 class FTPClient { 
 
     public static void main(String argv[]) throws Exception { 
+        System.out.println("Welcome to the server! To connect, enter \"connect <server-name> <port>\"");
+
         String sentence; 
         String modifiedSentence; 
         boolean isOpen = true;
@@ -22,8 +24,10 @@ class FTPClient {
 
 
         String serverName = null;
-        Integer port = 0;
+        int port = 12000;
+
 	if(sentence.startsWith("connect")) {
+                tokens.nextToken(); // ignore connect
                 serverName = tokens.nextToken(); // pass the connect command
                 port = Integer.parseInt(tokens.nextToken());
                 System.out.println("You are connected to " + serverName);
@@ -38,8 +42,6 @@ class FTPClient {
 	  DataInputStream inFromServer = new DataInputStream(new BufferedInputStream (ControlSocket.getInputStream()));
           
     	  sentence = inFromUser.readLine();
-	   
-                if(sentence.equals("list:")) {
                 
                 port = port + 2;
                 outToServer.writeBytes (port + " " + sentence + " " + '\n');
@@ -50,16 +52,18 @@ class FTPClient {
                 DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()));
                 while(notEnd) {
                         modifiedSentence = inData.readUTF();
+                        // TODO: read data
                         notEnd = false;
-                // TODO: read data
                 }
                 
 
-                        welcomeData.close();
-                        dataSocket.close();
-                        System.out.println("\nWhat would you like to do next: \n retr: file.txt ||stor: file.txt  || close");
+                welcomeData.close();
+                dataSocket.close();
+                System.out.println("\nWhat would you like to do next: \n retr: file.txt ||stor: file.txt  || close");
 
-                } else if (sentence.startsWith("retr: ")) {
+                if(sentence.equals("list:")) {
+
+                } else if (sentence.startsWith("retr:")) {
                         // TODO: retrive file
                         String fileName = tokens.nextToken();
 
