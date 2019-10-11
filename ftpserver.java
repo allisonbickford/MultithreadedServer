@@ -3,19 +3,24 @@ import java.net.*;
 import java.util.*;
 
 
-class FTPServer {
+public class ftpserver {
 
-    public static void main(String[] args){  // TODO: put stuff here
+    public static ServerSocket welcomeSocket;    
+    public static void main(String[] args) throws IOException{  // TODO: put stuff here
 	
 		String fromClient;
 		String clientCommand;
 		byte[] data;
 		int port;
 		
-		
-		
-
-		ServerSocket welcomeSocket = new ServerSocket(12000);
+			
+		try{
+			welcomeSocket = new ServerSocket(12000);
+		}
+		catch (IOException ioEx){
+			System.out.println("Unable to set up port");
+			System.exit(1);
+		}
 		String frstln;
 		
 		while(true) {
@@ -38,7 +43,13 @@ class FTPServer {
 			
 			File folder = new File(".");
 			File[] fileList = folder.listFiles();
-			BufferedReader br = new BufferedReader();
+			data = new byte[(int)fileList.length + 1];
+			for(int i = 0; i < fileList.length; i++){
+				FileInputStream fis = new FileInputStream(fileList[i]);
+				BufferedInputStream bis = new BufferedInputStream(fis);
+				bis.read(data,0,data.length);
+			}
+	
 			dataOutToClient.write(data);
 			// TODO: send data to client
 
@@ -51,21 +62,7 @@ class FTPServer {
 		// TODO: ??????????????????????????????????????????????????
 			
 			if(clientCommand.equals("retr:")) {
-				Socket dataSocket = new Socket(connectionSocket.getInetAddress(), port);
-				DataOutputStream  dataOutToClient = new DataOutputStream(dataSocket.getOutputStream()); 
-				
-				File myFile = new File(tokens.nextToken());
-				data = new byte[(int) myFile.length() + 1];
-				FileInputStream fis = new FileInputStream(myFile);
-				BufferedInputStream bis = new BufferedInputStream(fis);
-				bis.read(data, 0, data.length);
-				
-	
-				outToClient.write(data, 0, data.length);
-				outToClient.flush();
-				
-				dataSocket.close();
-				System.out.println("Data Socket closed");
+				// TODO: retrive
 			}
 		}
 
