@@ -21,13 +21,15 @@ class FTPClient {
         StringTokenizer tokens = new StringTokenizer(sentence);
 
 
-	if(sentence.startsWith("connect")){
-	String serverName = tokens.nextToken(); // pass the connect command
-	serverName = tokens.nextToken();
-	port1 = Integer.parseInt(tokens.nextToken());
-        System.out.println("You are connected to " + serverName);
-        
-	Socket ControlSocket = new Socket(serverName, port1);
+        String serverName = null;
+        Integer port = 0;
+	if(sentence.startsWith("connect")) {
+                serverName = tokens.nextToken(); // pass the connect command
+                port = Integer.parseInt(tokens.nextToken());
+                System.out.println("You are connected to " + serverName);
+        }
+
+	Socket ControlSocket = new Socket(serverName, port);
         
 	while(isOpen && clientgo) {      
 	      
@@ -37,31 +39,59 @@ class FTPClient {
           
     	  sentence = inFromUser.readLine();
 	   
-        if(sentence.equals("list:")) {
-            
-	    port = port + 2;
-	    outToServer.writeBytes (port + " " + sentence + " " + '\n');
-	    
-            ServerSocket welcomeData = new ServerSocket(port);
-	    Socket dataSocket = welcomeData.accept(); 
+                if(sentence.equals("list:")) {
+                
+                port = port + 2;
+                outToServer.writeBytes (port + " " + sentence + " " + '\n');
+                
+                ServerSocket welcomeData = new ServerSocket(port);
+                Socket dataSocket = welcomeData.accept(); 
 
- 	    DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()));
-            while(notEnd) {
-                modifiedSentence = inData.readUTF();
-               // TODO: read data
-            }
-	
+                DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()));
+                while(notEnd) {
+                        modifiedSentence = inData.readUTF();
+                        notEnd = false;
+                // TODO: read data
+                }
+                
 
-        welcomeData.close();
-        dataSocket.close();
-        System.out.println("\nWhat would you like to do next: \n retr: file.txt ||stor: file.txt  || close");
+                        welcomeData.close();
+                        dataSocket.close();
+                        System.out.println("\nWhat would you like to do next: \n retr: file.txt ||stor: file.txt  || close");
 
-        } else if (sentence.startsWith("retr: ")) {
-                // TODO: retrive file
-        } else if (sentence.startsWith("stor: ")) {
-                // TODO: store file
-        } else if (sentence.equals("close")) {
-                ControlSocket.close();
-                isOpen = false;
+                } else if (sentence.startsWith("retr: ")) {
+                        // TODO: retrive file
+                        String fileName = tokens.nextToken();
+
+                        // Prepend a "." so that file request is within the current directory.
+                        fileName = '.' + fileName;
+
+                        // Open the requested file.
+                        FileInputStream fis = null;
+
+                        boolean fileExists = true ;
+                        try {
+                                fis = new FileInputStream(fileName);
+                        } catch (FileNotFoundException e) {
+                                fileExists = false ;
+                        }
+                        // Debug info for private use
+                        String line = null;
+                        while ((line = inFromServer.readLine()).length() != 0) {
+                                System.out.println(line);
+                        }
+                        if (fileExists) {
+                                System.out.println(fileName);
+                        } else {
+                                System.out.println("We don't have that file!");
+                        }
+                } else if (sentence.startsWith("stor: ")) {
+                        // TODO: store file
+                } else if (sentence.equals("close")) {
+                        ControlSocket.close();
+                        isOpen = false;
+                }
         }
+}
+}
 	

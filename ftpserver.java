@@ -6,6 +6,7 @@ import java.util.*;
 class FTPServer {
 
     // TODO: put stuff here
+    public static void main(String argv[]) throws Exception {
 	
     String fromClient;
     String clientCommand;
@@ -14,6 +15,8 @@ class FTPServer {
 
     ServerSocket welcomeSocket = new ServerSocket(12000);
     String frstln;
+    int port = 6789;
+    System.out.println("hi");
     
     while(true) {
         Socket connectionSocket = welcomeSocket.accept();
@@ -27,14 +30,21 @@ class FTPServer {
         frstln = tokens.nextToken();
         port = Integer.parseInt(frstln);
         clientCommand = tokens.nextToken();
-
-        if(clientCommand.equals("list:")) { 
-
         Socket dataSocket = new Socket(connectionSocket.getInetAddress(), port);
         DataOutputStream  dataOutToClient = new DataOutputStream(dataSocket.getOutputStream());
+
+        if(clientCommand.equals("list:")) { 
         // TODO: send data to client
 
 
+        } else if (clientCommand.startsWith("retr:")) {
+            String fileName = tokens.nextToken();
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
+            int letter = 0;
+            while((letter = br.read()) != -1) {
+                System.out.println(letter);
+                outToClient.write(letter);
+            }
         }
 
         dataSocket.close();
@@ -43,9 +53,10 @@ class FTPServer {
 
     // TODO: condition here
         
-        if(clientCommand.equals("retr:")) {
-            // TODO: implement retrieve
-        }
+        // if(clientCommand.equals("retr:")) {
+        //     // TODO: implement retrieve
+        // }
 
+    }
 }
     
