@@ -43,7 +43,11 @@ public class ftpserver {
 			
 			File folder = new File(".");
 			File[] fileList = folder.listFiles();
-			data = new byte[(int)fileList.length + 1];
+			int byteSize = 0;
+			for(int i = 0; i < fileList.length; i++){
+				byteSize += (fileList[i].length +1);
+			}
+			data = new byte[byteSize];
 			for(int i = 0; i < fileList.length; i++){
 				FileInputStream fis = new FileInputStream(fileList[i]);
 				BufferedInputStream bis = new BufferedInputStream(fis);
