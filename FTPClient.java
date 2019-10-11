@@ -4,6 +4,7 @@ import java.util.*;
 import java.text.*;
 import java.lang.*;
 import javax.swing.*;
+
 class FTPClient { 
 
     public static void main(String argv[]) throws Exception { 
@@ -63,38 +64,55 @@ class FTPClient {
                 System.out.println("\nWhat would you like to do next: \n retr: file.txt ||stor: file.txt  || close");
 
                 if(sentence.equals("list:")) {
-
+                    //connects to a the server to get the list //idk what port
+                    ServerSocket serverList = new ServerSocket(port+2);
+                    //idk if i can reuse this socket 
+                    dataSocket = serverList.accept();
+                    //gets the data from that socket:
+                    DataInputStream din = new DataInputStream(new BufferedInputStream(dataSocket.getInputStream()));
+                    //for the files 
+                    String file = din.readUTF();
+                    int filesCount = din.readInt();
+                    //parse through the files 
+                    int i =0;
+                    while(i<filesCount){
+                        system.out.println(file);
+                        file = din.readUTF();
+                    }
+    
+                    serverList.close();
+                    dataSocket.close();
                 } else if (sentence.startsWith("retr:")) {
-                        // TODO: retrive file
-                        String fileName = tokens.nextToken();
-
-                        // Prepend a "." so that file request is within the current directory.
-                        fileName = '.' + fileName;
-
-                        // Open the requested file.
-                        FileInputStream fis = null;
-
-                        boolean fileExists = true ;
-                        try {
-                                fis = new FileInputStream(fileName);
-                        } catch (FileNotFoundException e) {
-                                fileExists = false ;
-                        }
-                        // Debug info for private use
-                        String line = null;
-                        while ((line = inFromServer.readLine()).length() != 0) {
-                                System.out.println(line);
-                        }
-                        if (fileExists) {
-                                System.out.println(fileName);
-                        } else {
-                                System.out.println("We don't have that file!");
-                        }
+                    // TODO: retrive file
+                    String fileName = tokens.nextToken();
+    
+                    // Prepend a "." so that file request is within the current directory.
+                    fileName = '.' + fileName;
+    
+                    // Open the requested file.
+                    FileInputStream fis = null;
+    
+                    boolean fileExists = true ;
+                    try {
+                        fis = new FileInputStream(fileName);
+                    } catch (FileNotFoundException e) {
+                        fileExists = false ;
+                    }
+                    // Debug info for private use
+                    String line = null;
+                    while ((line = inFromServer.readLine()).length() != 0) {
+                        System.out.println(line);
+                    }
+                    if (fileExists) {
+                        System.out.println(fileName);
+                    } else {
+                        System.out.println("We don't have that file!");
+                    }
                 } else if (sentence.startsWith("stor: ")) {
-                        // TODO: store file
+                    // TODO: store file
                 } else if (sentence.equals("close")) {
-                        ControlSocket.close();
-                        isOpen = false;
+                    ControlSocket.close();
+                    isOpen = false;
                 }
         }
 }
