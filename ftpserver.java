@@ -38,27 +38,35 @@ public class ftpserver {
 
 			if(clientCommand.equals("list:")) { 
 
-			Socket dataSocket = new Socket(connectionSocket.getInetAddress(), port);
-			DataOutputStream  dataOutToClient = new DataOutputStream(dataSocket.getOutputStream()); 
-			
-			File folder = new File(".");
-			File[] fileList = folder.listFiles();
-			int byteSize = 0;
-			for(int i = 0; i < fileList.length; i++){
-				byteSize += (fileList[i].length +1);
-			}
-			data = new byte[byteSize];
-			for(int i = 0; i < fileList.length; i++){
-				FileInputStream fis = new FileInputStream(fileList[i]);
-				BufferedInputStream bis = new BufferedInputStream(fis);
-				bis.read(data,0,data.length);
-			}
-	
-			dataOutToClient.write(data);
-			// TODO: send data to client
+				Socket dataSocket = new Socket(connectionSocket.getInetAddress(), port);
+				DataOutputStream  dataOutToClient = new DataOutputStream(dataSocket.getOutputStream()); 
+				
+				File folder = new File(".");
+				File[] fileList = folder.listFiles();
+				int byteSize = 0;
+				for(int i = 0; i < fileList.length; i++){
+					byteSize += (fileList[i].length +1);
+				}
+				data = new byte[byteSize];
+				
+				int offset = 0;
+				
+				for(int i = 0; i < fileList.length; i++){
+					FileInputStream fis = new FileInputStream(fileList[i]);
+					BufferedInputStream bis = new BufferedInputStream(fis);
+					if(i == 0){
+						offset = 0;
+					}
+					else{
+						offset = fileList[i-1].length;
+					}
+					bis.read(data,offset,data.length);
+				}
+				dataOutToClient.write(data);
+				// TODO: send data to client
 
-			dataSocket.close();
-			System.out.println("Data Socket closed");
+				dataSocket.close();
+				System.out.println("Data Socket closed");
 			}
 
 			
