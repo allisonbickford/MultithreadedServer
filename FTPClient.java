@@ -6,12 +6,11 @@ import java.lang.*;
 import javax.swing.*;
 class FTPClient { 
 
-    public static void main(String argv[]) throws Exception 
-    { 
+    public static void main(String argv[]) throws Exception { 
         String sentence; 
         String modifiedSentence; 
         boolean isOpen = true;
-        int number=1;
+        int number = 1;
         boolean notEnd = true;
 	String statusCode;
 	boolean clientgo = true;
@@ -28,10 +27,9 @@ class FTPClient {
 	port1 = Integer.parseInt(tokens.nextToken());
         System.out.println("You are connected to " + serverName);
         
-	Socket ControlSocket= new Socket(serverName, port1);
+	Socket ControlSocket = new Socket(serverName, port1);
         
-	while(isOpen && clientgo)
-        {      
+	while(isOpen && clientgo) {      
 	      
           DataOutputStream outToServer = new DataOutputStream(ControlSocket.getOutputStream()); 
           
@@ -39,29 +37,31 @@ class FTPClient {
           
     	  sentence = inFromUser.readLine();
 	   
-        if(sentence.equals("list:"))
-        {
+        if(sentence.equals("list:")) {
             
-	    port = port +2;
+	    port = port + 2;
 	    outToServer.writeBytes (port + " " + sentence + " " + '\n');
 	    
             ServerSocket welcomeData = new ServerSocket(port);
-	    Socket dataSocket =welcomeData.accept(); 
+	    Socket dataSocket = welcomeData.accept(); 
 
  	    DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()));
-            while(notEnd) 
-            {
+            while(notEnd) {
                 modifiedSentence = inData.readUTF();
-               ........................................
-	       ........................................
+               // TODO: read data
             }
 	
 
-	 welcomeData.close();
-	 dataSocket.close();
-	 System.out.println("\nWhat would you like to do next: \n retr: file.txt ||stor: file.txt  || close");
+        welcomeData.close();
+        dataSocket.close();
+        System.out.println("\nWhat would you like to do next: \n retr: file.txt ||stor: file.txt  || close");
 
+        } else if (sentence.startsWith("retr: ")) {
+                // TODO: retrive file
+        } else if (sentence.startsWith("stor: ")) {
+                // TODO: store file
+        } else if (sentence.equals("close")) {
+                ControlSocket.close();
+                isOpen = false;
         }
-         else if(sentence.startsWith("retr: "))
-        {
-		....................................................
+	
