@@ -39,7 +39,7 @@ class FTPClient {
 	      
           DataOutputStream outToServer = new DataOutputStream(ControlSocket.getOutputStream()); 
           
-	  DataInputStream inFromServer = new DataInputStream(new BufferedInputStream (ControlSocket.getInputStream()));
+          DataInputStream inFromServer = new DataInputStream(new BufferedInputStream (ControlSocket.getInputStream()));
           
     	  sentence = inFromUser.readLine();
                 
@@ -56,13 +56,32 @@ class FTPClient {
                         notEnd = false;
                 }
                 
-
                 welcomeData.close();
                 dataSocket.close();
                 System.out.println("\nWhat would you like to do next: \n retr: file.txt ||stor: file.txt  || close");
 
                 if(sentence.equals("list:")) {
 
+                        //connects to a the server to get the list //idk what port
+                        ServerSocket serverList = new ServerSocket(port+2);
+                        //idk if i can reuse this socket 
+                        dataSocket = serverList.accept();
+                        //gets the data from that socket:
+                        DataInputStream din = new DataInputStream(new BufferedInputStream(dataSocket.getInputStream()));
+                        //for the files 
+                       String file = din.readUTF();
+                        int filesCount = din.readInt();
+                        //parse through the files 
+                        int i =0;
+                        while(i<filesCount){
+                                system.out.println(file);
+                                file = din.readUTF();
+                        }
+
+                        serverList.close();
+                        dataSocket.close();
+        
+                       
                 } else if (sentence.startsWith("retr:")) {
                         // TODO: retrive file
                         String fileName = tokens.nextToken();
