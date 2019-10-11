@@ -7,7 +7,7 @@ import javax.swing.*;
 class FTPClient { 
 
     public static void main(String argv[]) throws Exception { 
-        System.out.println("Welcome to the server! To connect, enter \"connect <server-name> <port>\"");
+        System.out.println("Welcome to the server! To connect, enter \"connect 127.0.0.1 12000\"");
 
         String sentence; 
         String modifiedSentence; 
@@ -51,9 +51,10 @@ class FTPClient {
 
                 DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()));
                 while(notEnd) {
-                        modifiedSentence = inData.readUTF();
-                        // TODO: read data
+                    modifiedSentence = inData.readUTF();
+                    if (inData.available() == 0) {
                         notEnd = false;
+                    }
                 }
                 
 
