@@ -8,10 +8,11 @@ import javax.swing.*;
 class FTPClient { 
 
     public static void main(String argv[]) throws Exception { 
+
         System.out.println("Welcome to the server! To connect, enter \"connect 127.0.0.1 12000\"");
 
         String sentence; 
-        String modifiedSentence; 
+        String modifiedSentence=""; 
         boolean isOpen = true;
         int number = 1;
         boolean notEnd = true;
@@ -38,52 +39,46 @@ class FTPClient {
         
 	while(isOpen && clientgo) {      
 	      
-          DataOutputStream outToServer = new DataOutputStream(ControlSocket.getOutputStream()); 
+				DataOutputStream outToServer = new DataOutputStream(ControlSocket.getOutputStream()); 
+				DataInputStream inFromServer = new DataInputStream(new BufferedInputStream (ControlSocket.getInputStream()));
           
-	  DataInputStream inFromServer = new DataInputStream(new BufferedInputStream (ControlSocket.getInputStream()));
-          
-    	  sentence = inFromUser.readLine();
-                
-                port = port + 2;
-                outToServer.writeBytes (port + " " + sentence + " " + '\n');
+    			sentence = inFromUser.readLine();
+           if(sentence.equals("list:")) {
+				  port = port + 2;
+				 outToServer.writeBytes (port + " " + sentence + " " + '\n');
                 
                 ServerSocket welcomeData = new ServerSocket(port);
                 Socket dataSocket = welcomeData.accept(); 
-
-                DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()));
-                while(notEnd) {
+				try(
+                DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()))
+               ){
+			   System.out.println("\n-----List of Files-------\n");
+			   while(notEnd) {
                     modifiedSentence = inData.readUTF();
+					System.out.println(modifiedSentence);
                     if (inData.available() == 0) {
                         notEnd = false;
                     }
-                }
-                
-
+				 }
+				}
+				catch(IOException e){
+				System.out.println("No files :( or didnt work idk:"+e);
+				}
+				
                 welcomeData.close();
                 dataSocket.close();
                 System.out.println("\nWhat would you like to do next: \n retr: file.txt ||stor: file.txt  || close");
-
-                if(sentence.equals("list:")) {
-                    //connects to a the server to get the list //idk what port
-                    ServerSocket serverList = new ServerSocket(port+2);
-                    //idk if i can reuse this socket 
-                    dataSocket = serverList.accept();
-                    //gets the data from that socket:
-                    DataInputStream din = new DataInputStream(new BufferedInputStream(dataSocket.getInputStream()));
-                    //for the files 
-                    String file = din.readUTF();
-                    int filesCount = din.readInt();
-                    //parse through the files 
-                    int i =0;
-                    while(i<filesCount){
-                        system.out.println(file);
-                        file = din.readUTF();
-                    }
-    
-                    serverList.close();
-                    dataSocket.close();
                 } else if (sentence.startsWith("retr:")) {
-                    // TODO: retrive file
+
+				port = port +2;
+				outToServer.writeBytes (port + " " + sentence + " " + '\n');
+                
+                ServerSocket welcomeData = new ServerSocket(port);
+                Socket dataSocket = welcomeData.accept(); 
+				try(
+                DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()))
+               ){
+			  // TODO: retrive file
                     String fileName = tokens.nextToken();
     
                     // Prepend a "." so that file request is within the current directory.
@@ -108,6 +103,14 @@ class FTPClient {
                     } else {
                         System.out.println("We don't have that file!");
                     }
+                    welcomeData.close();
+                dataSocket.close();
+				 
+				}
+				catch(IOException e){
+				System.out.println(e);
+				}
+                    
                 } else if (sentence.startsWith("stor: ")) {
                     // TODO: store file
                 } else if (sentence.equals("close")) {
