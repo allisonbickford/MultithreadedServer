@@ -32,6 +32,7 @@ class ClientHandler implements Runnable {
         byte[] data;
         String frstln;
         int port = 8000;
+		String fileName="";
         try {
             DataOutputStream  outToClient = new DataOutputStream(this.socket.getOutputStream());
             BufferedReader inFromClient = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
@@ -51,7 +52,7 @@ class ClientHandler implements Runnable {
 
 
             } else if (clientCommand.startsWith("retr:")) {
-                String fileName = tokens.nextToken();
+                fileName = tokens.nextToken();
                 BufferedReader br = new BufferedReader(new FileReader(fileName));
                 int letter = 0;
                 while((letter = br.read()) != -1) {
@@ -59,7 +60,28 @@ class ClientHandler implements Runnable {
                     outToClient.write(letter);
                 }
                 System.out.println("retrieving file...");
-            }
+
+            }else if(clientCommand.startsWith("stor:")){
+
+			fileName = tokens.nextToken();
+			System.out.println("storing file..." + fileName);
+
+			//Socket dSocket = new Socket(this.socket.getInetAddress(), port);
+
+			 DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()));
+			
+			 byte[] fileData = new byte[1024];
+			
+			  String getDir = System.getProperty("user.dir");
+			  FileOutputStream outputStream = new FileOutputStream(getDir+ "/"+ fileName);
+			  inData.read(fileData);
+			  outputStream.write(fileData);
+			  System.out.println("file stored... "+fileName);
+			  //dSocket.close();
+			  inData.close();
+			  outputStream.close();
+
+			}
 
             dataSocket.close();
             System.out.println("Data Socket closed");

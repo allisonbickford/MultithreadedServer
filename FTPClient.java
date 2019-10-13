@@ -16,9 +16,9 @@ class FTPClient {
         boolean isOpen = true;
         int number = 1;
         boolean notEnd = true;
-	String statusCode;
-	boolean clientgo = true;
-	    
+		String statusCode;
+		boolean clientgo = true;
+	    String fileName="";
 	
 	BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in)); 
         sentence = inFromUser.readLine();
@@ -27,6 +27,8 @@ class FTPClient {
 
         String serverName = null;
         int port = 12000;
+		int nextPort = 1668;
+
 
 	if(sentence.startsWith("connect")) {
                 tokens.nextToken(); // ignore connect
@@ -36,19 +38,19 @@ class FTPClient {
         }
 
 	Socket ControlSocket = new Socket(serverName, port);
-        
-	while(isOpen && clientgo) {      
-	      
-				DataOutputStream outToServer = new DataOutputStream(ControlSocket.getOutputStream()); 
-				DataInputStream inFromServer = new DataInputStream(new BufferedInputStream (ControlSocket.getInputStream()));
+        DataOutputStream outToServer = new DataOutputStream(ControlSocket.getOutputStream()); 
+		DataInputStream inFromServer = new DataInputStream(new BufferedInputStream (ControlSocket.getInputStream()));
           
+	while(isOpen && clientgo) {      
+	 
     			sentence = inFromUser.readLine();
+				modifiedSentence= "";
            if(sentence.equals("list:")) {
-				  port = port + 2;
-				 outToServer.writeBytes (port + " " + sentence + " " + '\n');
-                
-                ServerSocket welcomeData = new ServerSocket(port);
+				  nextPort =  port + 2;
+				 outToServer.writeBytes (nextPort + " " + sentence + " " + '\n');
+                ServerSocket welcomeData = new ServerSocket(nextPort);
                 Socket dataSocket = welcomeData.accept(); 
+
 				try(
                 DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()))
                ){
@@ -60,26 +62,29 @@ class FTPClient {
                         notEnd = false;
                     }
 				 }
+				 inData.close();
 				}
 				catch(IOException e){
-				System.out.println("No files :( or didnt work idk:"+e);
+				System.out.println("No files :( or didnt work idk:"+ e);
 				}
 				
                 welcomeData.close();
                 dataSocket.close();
+
                 System.out.println("\nWhat would you like to do next: \n retr: file.txt ||stor: file.txt  || close");
                 } else if (sentence.startsWith("retr:")) {
 
-				port = port +2;
-				outToServer.writeBytes (port + " " + sentence + " " + '\n');
+				nextPort = port +2;
+				outToServer.writeBytes (nextPort + " " + sentence + " " + '\n');
                 
-                ServerSocket welcomeData = new ServerSocket(port);
+                ServerSocket welcomeData = new ServerSocket(nextPort);
                 Socket dataSocket = welcomeData.accept(); 
+
 				try(
                 DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()))
                ){
 			  // TODO: retrive file
-                    String fileName = tokens.nextToken();
+                    fileName = tokens.nextToken();
     
                     // Prepend a "." so that file request is within the current directory.
                     fileName = '.' + fileName;
@@ -111,9 +116,37 @@ class FTPClient {
 				System.out.println(e);
 				}
                     
-                } else if (sentence.startsWith("stor: ")) {
+                } else if (sentence.startsWith("stor:")) {
+				String str = sentence;
+				String[] splitStr = str.split("\\s+");
+				fileName = splitStr[1];
+				nextPort = port +2;
+				outToServer.writeBytes (nextPort + " " + sentence + " " + '\n');
+                
+                ServerSocket welcomeData = new ServerSocket(nextPort);
+                Socket dataSocket = welcomeData.accept(); 
+
+				DataOutputStream outData = new DataOutputStream(new BufferedOutputStream (dataSocket.getOutputStream()));
+
+				File file = new File(fileName);
+				FileInputStream fis = new FileInputStream(fileName);
+				BufferedInputStream bis = new BufferedInputStream(fis);
+
+				byte[] fileData = new byte[(int)file.length()];
+				bis.read(fileData,0,(int)file.length());
+
+				outData.write(fileData);
+
+				bis.close();
+				fis.close();
+				outData.close();
+				welcomeData.close();
+				dataSocket.close();
+				
+				System.out.println("\nWhat would you like to do next: \n list: || retr: file.txt ||stor: file.txt  || close");
                     // TODO: store file
                 } else if (sentence.equals("close")) {
+
                     ControlSocket.close();
                     isOpen = false;
                 }
