@@ -27,6 +27,8 @@ class FTPClient {
 
         String serverName = null;
         int port = 12000;
+		int nextPort = 1668;
+
 
 	    if(sentence.startsWith("connect")) {
             tokens.nextToken(); // ignore connect
@@ -43,6 +45,7 @@ class FTPClient {
             sentence = inFromUser.readLine();
             port = port + 2;
             outToServer.writeBytes (port + " " + sentence + " " + '\n');
+            modifiedSentence= "";
             if (sentence.equals("list:")) {
                 
                 ServerSocket welcomeData = new ServerSocket(port);
@@ -58,8 +61,9 @@ class FTPClient {
                             notEnd = false;
                         }
                     }
+                    inData.close();
                 } catch(IOException e){
-                    System.out.println("No files :( or didnt work idk:"+e);
+                    System.out.println("No files :( or didnt work idk:" + e);
                 }
                 
                 dataSocket.close();	
@@ -95,7 +99,29 @@ class FTPClient {
                 welcomeData.setReuseAddress(true);
                 welcomeData.close();	
             } else if (sentence.startsWith("stor: ")) {
-                // TODO: store file
+                String str = sentence;
+				String[] splitStr = str.split("\\s+");
+				String fileName = splitStr[1];
+				
+                ServerSocket welcomeData = new ServerSocket(port);
+                Socket dataSocket = welcomeData.accept(); 
+
+				DataOutputStream outData = new DataOutputStream(new BufferedOutputStream (dataSocket.getOutputStream()));
+
+				File file = new File(fileName);
+				FileInputStream fis = new FileInputStream(fileName);
+				BufferedInputStream bis = new BufferedInputStream(fis);
+
+				byte[] fileData = new byte[(int)file.length()];
+				bis.read(fileData,0,(int)file.length());
+
+				outData.write(fileData);
+
+				bis.close();
+				fis.close();
+				outData.close();
+				welcomeData.close();
+				dataSocket.close();
             } else if (sentence.equals("close")) {
                 ControlSocket.close();
                 System.out.println("Closing connection.");

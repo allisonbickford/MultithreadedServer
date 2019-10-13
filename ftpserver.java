@@ -63,16 +63,31 @@ class ClientHandler implements Runnable {
                     } else {
                         outToClient.writeUTF("550 Not Found");
                     }
+                } else if(clientCommand.startsWith("stor:")){
+                    String fileName = tokens.nextToken();
+                    System.out.println("storing file..." + fileName);
+
+                    DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()));
+                    
+                    FileOutputStream outputStream = new FileOutputStream("./server/" + fileName);
+                    int letter = -1;
+                    while ((letter = inData.read()) != -1) {
+                        outputStream.write((char) letter);
+                    }
+
+                    System.out.println("file stored... " + fileName);
+                    inData.close();
+                    outputStream.close();
                 } else if (clientCommand.equals("close")) {
                     dataSocket.close();
                     System.out.println("Connection ended with victim " + this.socket.getPort());
                     this.socket.close();
                     break;
                 }
-
                 dataSocket.close();
                 System.out.println("Data Socket closed");
             } catch (Exception e) {
+                e.printStackTrace();
                 System.out.println("There was a problem, " +
                     "so we are closing the connection to victim " + this.socket.getPort());
                 try {
