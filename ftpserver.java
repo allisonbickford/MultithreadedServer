@@ -31,40 +31,48 @@ class ClientHandler implements Runnable {
         String clientCommand;
         byte[] data;
         String frstln;
-        int port = 8000;
-        try {
-            DataOutputStream  outToClient = new DataOutputStream(this.socket.getOutputStream());
-            BufferedReader inFromClient = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-        
-            fromClient = inFromClient.readLine();
+        int port = this.socket.getPort();
 
-            System.out.println(fromClient);
-            StringTokenizer tokens = new StringTokenizer(fromClient);
-            frstln = tokens.nextToken();
-            port = Integer.parseInt(frstln);
-            clientCommand = tokens.nextToken();
-            Socket dataSocket = new Socket(this.socket.getInetAddress(), port);
-            DataOutputStream  dataOutToClient = new DataOutputStream(dataSocket.getOutputStream());
+        while (true) {
+            try {
+                DataOutputStream  outToClient = new DataOutputStream(this.socket.getOutputStream());
+                BufferedReader inFromClient = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+            
+                fromClient = inFromClient.readLine();
+                System.out.println(fromClient);
 
-            if(clientCommand.equals("list:")) { 
-            // TODO: send data to client
+                StringTokenizer tokens = new StringTokenizer(fromClient);
+                frstln = tokens.nextToken();
+                port = Integer.parseInt(frstln);
+                clientCommand = tokens.nextToken();
+                Socket dataSocket = new Socket(this.socket.getInetAddress(), port);
+                DataOutputStream dataOutToClient = new DataOutputStream(dataSocket.getOutputStream());
+
+                if(clientCommand.equals("list:")) { 
+                // TODO: send data to client
 
 
-            } else if (clientCommand.startsWith("retr:")) {
-                String fileName = tokens.nextToken();
-                BufferedReader br = new BufferedReader(new FileReader(fileName));
-                int letter = 0;
-                while((letter = br.read()) != -1) {
-                    System.out.println(letter);
-                    outToClient.write(letter);
+                } else if (clientCommand.startsWith("retr:")) {
+                    String fileName = "./server/" + tokens.nextToken(); // files should be stored in server folder
+                    File fileRequested = new File(fileName);
+                    if (fileRequested.exists()) {
+                        outToClient.writeUTF("200 OK");
+                        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+                        int letter = -1;
+                        while ((letter = reader.read()) != -1) {
+                            dataOutToClient.writeByte(letter);
+                        }
+                    } else {
+                        outToClient.writeUTF("550 Not Found");
+                    }
                 }
-                System.out.println("retrieving file...");
-            }
 
-            dataSocket.close();
-            System.out.println("Data Socket closed");
-        } catch (Exception e) {
-            e.printStackTrace();
+                outToClient.flush();
+                dataSocket.close();
+                System.out.println("Data Socket closed");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
