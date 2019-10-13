@@ -37,7 +37,7 @@ class ClientHandler implements Runnable {
             try {
                 DataOutputStream  outToClient = new DataOutputStream(this.socket.getOutputStream());
                 BufferedReader inFromClient = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-            
+
                 fromClient = inFromClient.readLine();
                 System.out.println(fromClient);
 
@@ -49,9 +49,7 @@ class ClientHandler implements Runnable {
                 DataOutputStream dataOutToClient = new DataOutputStream(dataSocket.getOutputStream());
 
                 if(clientCommand.equals("list:")) { 
-                // TODO: send data to client
-
-
+                    // TODO: send data to client
                 } else if (clientCommand.startsWith("retr:")) {
                     String fileName = "./server/" + tokens.nextToken(); // files should be stored in server folder
                     File fileRequested = new File(fileName);
@@ -65,13 +63,24 @@ class ClientHandler implements Runnable {
                     } else {
                         outToClient.writeUTF("550 Not Found");
                     }
+                } else if (clientCommand.equals("close")) {
+                    dataSocket.close();
+                    System.out.println("Connection ended with victim " + this.socket.getPort());
+                    this.socket.close();
+                    break;
                 }
 
-                outToClient.flush();
                 dataSocket.close();
                 System.out.println("Data Socket closed");
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println("There was a problem, " +
+                    "so we are closing the connection to victim " + this.socket.getPort());
+                try {
+                    this.socket.close();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                break;
             }
         }
     }

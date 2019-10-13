@@ -34,7 +34,7 @@ class FTPClient {
             port = Integer.parseInt(tokens.nextToken());
         }
 
-	    Socket ControlSocket = new Socket(serverName, 12000);
+	    Socket ControlSocket = new Socket(serverName, port);
         System.out.println("You are connected to " + serverName);
         DataOutputStream outToServer = new DataOutputStream(ControlSocket.getOutputStream()); 
         DataInputStream inFromServer = new DataInputStream(new BufferedInputStream (ControlSocket.getInputStream()));
@@ -66,7 +66,7 @@ class FTPClient {
                 welcomeData.close();	
             } else if (sentence.startsWith("retr: ")) {
                 ServerSocket welcomeData = new ServerSocket(port);
-                Socket dataSocket = welcomeData.accept(); 
+                Socket dataSocket = welcomeData.accept();
                 
                 String serverStatus = inFromServer.readUTF();
                 if (serverStatus.startsWith("550")) {
@@ -92,6 +92,7 @@ class FTPClient {
                     }         
                 }
                 dataSocket.close();	
+                welcomeData.setReuseAddress(true);
                 welcomeData.close();	
             } else if (sentence.startsWith("stor: ")) {
                 // TODO: store file
