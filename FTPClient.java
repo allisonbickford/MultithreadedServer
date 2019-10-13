@@ -43,6 +43,11 @@ class FTPClient {
         
 	    while(isOpen && clientgo) {
             sentence = inFromUser.readLine();
+			File newfile = new File(sentence.replace("retr: ", ""));
+			if(newfile.exists()){
+			    System.out.println("File already exists.");
+				break;
+			}
             port = port + 2;
 			ServerSocket welcomeData = new ServerSocket(port);
             outToServer.writeBytes (port + " " + sentence + " " + '\n');
@@ -78,20 +83,15 @@ class FTPClient {
                         File newfile = new File(sentence.replace("retr: ", ""));
 						DataInputStream inData = new DataInputStream(new BufferedInputStream(dataSocket.getInputStream()));
 						int letter = -1;
-                        if (!newfile.exists()) {
-                            System.out.println("Downloading file...");
-                            FileOutputStream fos = new FileOutputStream(newfile);
+                      
+                        System.out.println("Downloading file...");
+                        FileOutputStream fos = new FileOutputStream(newfile);
                             
-                            while ((letter = inData.read()) != -1) {
+                        while ((letter = inData.read()) != -1) {
                                 fos.write((char) letter);
-                            }
-                            System.out.println("File successfully downloaded!");
-                        } else {
-							while(letter = inData.read()) != -1){
-								
-							}
-                            System.out.println("File already exists.");
                         }
+                        System.out.println("File successfully downloaded!");
+                          
                     } catch(IOException e){
                         System.out.println(e);
                     }         
