@@ -50,9 +50,7 @@ class FTPClient {
             modifiedSentence= "";
 			notEnd=true;
             if (sentence.equals("list:")) {
-                
-                //ServerSocket welcomeData = new ServerSocket(port);
-                //Socket dataSocket = welcomeData.accept(); 
+                 
                 try (
                     DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()))
                     ) {
@@ -72,26 +70,26 @@ class FTPClient {
                 dataSocket.close();	
                 welcomeData.close();	
             } else if (sentence.startsWith("retr: ")) {
-                //ServerSocket welcomeData = new ServerSocket(port);
-                //Socket dataSocket = welcomeData.accept();
-                
                 String serverStatus = inFromServer.readUTF();
                 if (serverStatus.startsWith("550")) {
                     System.out.println("File not found on server.");
                 } else if (serverStatus.startsWith("200")) {
                     try {
-                        DataInputStream inData = new DataInputStream(new BufferedInputStream(dataSocket.getInputStream()));
-
                         File newfile = new File(sentence.replace("retr: ", ""));
+						DataInputStream inData = new DataInputStream(new BufferedInputStream(dataSocket.getInputStream()));
+						int letter = -1;
                         if (!newfile.exists()) {
                             System.out.println("Downloading file...");
                             FileOutputStream fos = new FileOutputStream(newfile);
-                            int letter = -1;
+                            
                             while ((letter = inData.read()) != -1) {
                                 fos.write((char) letter);
                             }
                             System.out.println("File successfully downloaded!");
                         } else {
+							while(letter = inData.read()) != -1){
+								
+							}
                             System.out.println("File already exists.");
                         }
                     } catch(IOException e){
@@ -105,9 +103,6 @@ class FTPClient {
                 String str = sentence;
 				String[] splitStr = str.split("\\s+");
 				String fileName = splitStr[1];
-				
-                //ServerSocket welcomeData = new ServerSocket(port);
-                //Socket dataSocket = welcomeData.accept(); 
 
 				DataOutputStream outData = new DataOutputStream(new BufferedOutputStream (dataSocket.getOutputStream()));
 
