@@ -1,4 +1,4 @@
-import java.io.*; 
+import java.io.*;
 import java.net.*;
 import java.util.*;
 
@@ -9,7 +9,7 @@ class FTPServer {
         ServerSocket welcomeSocket = new ServerSocket(12000, 0, InetAddress.getLoopbackAddress());
         int port = 12000;
         System.out.println("Listening at " + welcomeSocket.getInetAddress() + ":" + port);
-        
+
         while(true) {
             Socket connectionSocket = welcomeSocket.accept();
             System.out.println("Victim at: " + connectionSocket.getPort());
@@ -25,7 +25,7 @@ class ClientHandler implements Runnable {
         this.socket = socket;
     }
 
-    @Override 
+    @Override
     public void run() {
         String fromClient;
         String clientCommand;
@@ -50,16 +50,16 @@ class ClientHandler implements Runnable {
 
                 if(clientCommand.equals("list:")) {
 				 System.out.println("...sending files:");
-					try {        
-						 File [] files = new File("./server/").listFiles();     
+					try {
+						 File [] files = new File("./server/").listFiles();
 						 for (File file : files) {
 						  dataOutToClient.writeUTF(file.getName());
 						 }
 				dataOutToClient.writeUTF("----------");
 				dataOutToClient.flush();
 				dataOutToClient.close();
-				dataSocket.close(); 
-				System.out.println("....list sent to port: " + port);     
+				dataSocket.close();
+				System.out.println("....list sent to port: " + port);
 			} catch (Exception e) {
 				System.out.println(e);
 			}
@@ -81,7 +81,7 @@ class ClientHandler implements Runnable {
                     System.out.println("storing file..." + fileName);
 
                     DataInputStream inData = new DataInputStream(new BufferedInputStream (dataSocket.getInputStream()));
-                    
+
                     FileOutputStream outputStream = new FileOutputStream("./server/" + fileName);
                     int letter = -1;
                     while ((letter = inData.read()) != -1) {
