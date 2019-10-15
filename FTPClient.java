@@ -67,7 +67,7 @@ class FTPClient {
                     }
                     inData.close();
                 } catch (IOException e) {
-                    System.out.println("No files :( or didnt work idk:" + e);
+                    System.out.println("No files" + e);
                 }
 
                 dataSocket.close();
